@@ -12,7 +12,6 @@
 #include <atomic>
 #include <ostream>  // we only use this to stringify std::thread::id in a debug log message
 #include <thread>
-#include <iostream> // DEBUG
 
 namespace obj2voxel {
 namespace {
