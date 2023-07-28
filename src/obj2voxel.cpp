@@ -6,11 +6,13 @@
 #include "voxelization.hpp"
 
 #include "voxelio/format/png.hpp"
+#include "voxelio/fstream.hpp"
 #include "voxelio/stringify.hpp"
 
 #include <atomic>
 #include <ostream>  // we only use this to stringify std::thread::id in a debug log message
 #include <thread>
+#include <iostream> // DEBUG
 
 namespace obj2voxel {
 namespace {
@@ -283,6 +285,8 @@ void voxelizeChunk(obj2voxel_instance &instance, Voxelizer &voxelizer, u32 chunk
     u32 i = 0;
     for (auto [index, color] : voxelizer.voxels()) {
         Vec3u32 pos32 = VoxelMap<WeightedColor>::posOf(index);
+	auto const normal_scaled = voxelizer.normals().at(index).value * 256;
+        Vec3i32 const normal = normal_scaled.cast<i32>();
         if constexpr (build::DEBUG) {
             VXIO_DEBUG_ASSERT_EQ(index / (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE), chunkIndex);
             for (usize i = 0; i < 3; ++i) {
@@ -292,7 +296,7 @@ void voxelizeChunk(obj2voxel_instance &instance, Voxelizer &voxelizer, u32 chunk
         }
 
         Color32 color32{color.value};
-        buffer[i++] = {pos32.cast<i32>(), {color32.argb()}};
+        buffer[i++] = {pos32.cast<i32>(), {color32.argb()}, normal};
     }
     VXIO_ASSERT_EQ(i, voxelCount);
     {
@@ -556,8 +560,8 @@ std::unique_ptr<IVoxelSink> openOutput(obj2voxel_instance &instance)
     }
 
     case IoType::FILE: {
-        std::optional<FileOutputStream> stream = FileOutputStream::open(output.file.path, OpenMode::BINARY);
-        if (not stream.has_value()) {
+        std::optional<FileOutputStream> stream = FileOutputStream(output.file.path, OpenMode::BINARY);
+        if (not stream->good()) {
             return nullptr;
         }
 
@@ -873,8 +877,8 @@ bool obj2voxel_texture_load_from_file(obj2voxel_texture *texture, const char *fi
         return false;
     }
 
-    std::optional<FileInputStream> fileStream = FileInputStream::open(file, OpenMode::BINARY);
-    if (not fileStream.has_value()) {
+    std::optional<FileInputStream> fileStream = FileInputStream(file, OpenMode::BINARY);
+    if (not fileStream->good()) {
         return false;
     }
     std::string error;

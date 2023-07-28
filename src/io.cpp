@@ -9,7 +9,9 @@
 #include "voxelio/format/vl32.hpp"
 #include "voxelio/format/vox.hpp"
 #include "voxelio/format/xyzrgb.hpp"
+#include "voxelio/format/xyzrgbn.hpp"
 
+#include "voxelio/fstream.hpp"
 #include "voxelio/filetype.hpp"
 #include "voxelio/log.hpp"
 #include "voxelio/stream.hpp"
@@ -44,8 +46,8 @@ void writeTriangleAsBinaryToDebugStl(Triangle triangle)
 void dumpDebugStl(const std::string &path)
 {
     u8 buffer[80]{};
-    std::optional<FileOutputStream> stlDump = FileOutputStream::open(path);
-    VXIO_ASSERT(stlDump.has_value());
+    std::optional<FileOutputStream> stlDump = FileOutputStream(path, OpenMode::WRITE);
+    VXIO_ASSERT(stlDump->good());
     stlDump->write(buffer, sizeof(buffer));
     VXIO_ASSERT_DIVISIBLE(globalDebugStl.size(), 50u);
     stlDump->writeLittle<u32>(static_cast<u32>(globalDebugStl.size() / 50));
@@ -394,8 +396,8 @@ std::unique_ptr<ITriangleStream> ITriangleStream::fromObjFile(const std::string 
 
 std::unique_ptr<ITriangleStream> ITriangleStream::fromStlFile(const std::string &inFile) noexcept
 {
-    std::optional<FileInputStream> stream = FileInputStream::open(inFile);
-    if (not stream.has_value()) {
+    std::optional<FileInputStream> stream = FileInputStream(inFile, OpenMode::READ);
+    if (not stream->good()) {
         VXIO_LOG(ERROR, "Failed to open STL file: \"" + inFile + "\"");
         return nullptr;
     }
@@ -438,8 +440,8 @@ std::optional<Texture> loadTexture(const std::string &name, const std::string &m
 {
     std::string sanitizedName = name;
     std::replace(sanitizedName.begin(), sanitizedName.end(), '\\', '/');
-    std::optional<FileInputStream> stream = FileInputStream::open(sanitizedName, OpenMode::BINARY);
-    if (not stream.has_value()) {
+    std::optional<FileInputStream> stream = FileInputStream(sanitizedName, OpenMode::BINARY);
+    if (not stream->good()) {
         VXIO_LOG(WARNING, "Failed to open texture file \"" + sanitizedName + "\" of material \"" + material + '"');
         return std::nullopt;
     }
@@ -473,6 +475,7 @@ AbstractListWriter *makeWriter(OutputStream &stream, FileType type)
     case FileType::VL32: return new vl32::Writer{stream};
     case FileType::STANFORD_TRIANGLE: return new ply::Writer{stream};
     case FileType::XYZRGB: return new xyzrgb::Writer{stream};
+    case FileType::XYZRGBN: return new xyzrgbn::Writer{stream};
     default: VXIO_ASSERT_UNREACHABLE();
     }
 }
@@ -642,8 +645,9 @@ void CallbackVoxelSink::write(Voxel32 voxels[], usize count) noexcept
     // This cast is not standard compliant despite all these assertions.
     // However, because a Voxel32 is essentially a struct of four ints, reinterpreting it as four ints will be safe
     // for virtually all compilers and architectures.
-    static_assert(sizeof(Voxel32) == sizeof(uint32_t[4]));
-    static_assert(alignof(Voxel32) == alignof(uint32_t[4]));
+    VXIO_ASSERTM(false, "not yet implemented for format with normals");
+    // static_assert(sizeof(Voxel32) == sizeof(uint32_t[4]));
+    // static_assert(alignof(Voxel32) == alignof(uint32_t[4]));
     static_assert(offsetof(Voxel32, pos) == 0);
     static_assert(offsetof(Voxel32, argb) == 12);
 

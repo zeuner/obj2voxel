@@ -90,7 +90,7 @@ This allows specifying an extension such as `obj` or `stl` explictly for files w
 By default, this is not necessary.
 ====
 
-.`-o (ply|qef|vl32|vox|xyzrgb)`
+.`-o (ply|qef|vl32|vox|xyzrgb|xyzrgbn)`
 [%collapsible]
 ====
 The explicit output format.
@@ -203,6 +203,9 @@ image:img/terminal_screenshot.png[screenshot]
 
 | XYZRGB
 | `xyzrgb`| Output&ast;&ast;
+
+| XYZRGBN
+| `xyzrgbn`| Output&ast;&ast;
 |===================================================
 
 ### Notes
@@ -263,6 +266,12 @@ Use of streamable formats like VL32 is highly recommended, only use VOX for lowe
 XYZRGB's official extension is `xyzrgb` but the software link:https://github.com/Zarbuz/FileToVox[_FileToVox_] uses the extension `xyz` instead. Rename the files before importing into _FileToVox_.
 ====
 
+.**XYZRGBN**
+[%collapsible]
+====
+XYZRGBN is XYZRGB with additional normals information.
+====
+
 ## Performance
 
 On high-end hardware and with some models, obj2voxel can produce 10 million voxels per second.
@@ -270,7 +279,7 @@ Voxelization is a highly parallel task and scales very well with high thread cou
 Any resolution lower than 1024 should be voxelized almost instantly, even with a single thread.
 
 The memory consumption of obj2voxel depends on the size of the input model because the model is loaded into memory entirely.
-Certain output formats like PLY, VL32 and XYZRGB can be streamed, meaning that obj2voxel will consume very little memory when producing them.
+Certain output formats like PLY, VL32, XYZRGB and XYZRGBN can be streamed, meaning that obj2voxel will consume very little memory when producing them.
 Other formats like QEF require a palette to be constructed, so all voxels must be buffered in memory before they can be written.
 This usally requires around 16 bytes per voxel.
 

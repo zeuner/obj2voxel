@@ -1,7 +1,7 @@
 [submodule "voxel-io"]
 	path = voxelio
 	url = git@github.com:zeuner/voxel-io.git
-	branch = compile-fix
+	branch = normals
 [submodule "args"]
 	path = tayweeargs
 	url = git@github.com:Taywee/args.git

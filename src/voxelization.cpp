@@ -517,9 +517,27 @@ void Voxelizer::moveUvBufferIntoVoxels(const VisualTriangle &inputTriangle) noex
         Vec3f colorVec = inputTriangle.colorAt_f(weightedUv.value);
         WeightedColor color = {weightedUv.weight, colorVec};
 
-        auto [location, success] = voxels_.emplace(pos, color);
-        if (not success) {
-            location->second = this->combineFunction(color, location->second);
+	Vec3f normalVec = normalize(inputTriangle.normal());
+        Weighted<Vec3f> normal = {weightedUv.weight, normalVec};
+
+	{
+            auto [location, success] = voxels_.emplace(pos, color);
+            if (not success) {
+                location->second = this->combineFunction(
+                    color,
+                    location->second
+                );
+            }
+        }
+
+	{
+            auto [location, success] = normals_.emplace(pos, normal);
+            if (not success) {
+                location->second = this->combineFunction(
+                    normal,
+                    location->second
+                );
+            }
         }
     }
     uvBuffer.clear();

@@ -62,6 +62,9 @@ private:
     split_buffer_type postSplitBuffer;
     VoxelMap<WeightedUv> uvBuffer;
     VoxelMap<WeightedColor> voxels_;
+    VoxelMap<
+        Weighted<Vec3f>
+    > normals_;
     WeightedCombineFunction<Vec3f> combineFunction;
 
 public:
@@ -87,6 +90,13 @@ public:
     VoxelMap<WeightedColor> &voxels() noexcept
     {
         return voxels_;
+    }
+
+    VoxelMap<
+        Weighted<Vec3f>
+    > &normals() noexcept
+    {
+        return normals_;
     }
 
 private:

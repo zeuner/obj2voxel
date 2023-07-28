@@ -71,7 +71,8 @@ constexpr bool isSupportedFormat<FilePurpose::OUTPUT>(FileType type)
     case FileType::QUBICLE_EXCHANGE:
     case FileType::STANFORD_TRIANGLE:
     case FileType::VL32:
-    case FileType::XYZRGB: return true;
+    case FileType::XYZRGB:
+    case FileType::XYZRGBN: return true;
     default: return false;
     }
 }
@@ -300,7 +301,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     auto inFileArg = args::Positional<std::string>(fgroup, "INPUT_FILE", INPUT_DESCR);
     auto outFileArg = args::Positional<std::string>(fgroup, "OUTPUT_FILE", OUTPUT_DESCR);
     auto inFormatArg = args::ValueFlag<std::string>(fgroup, "obj|stl", INPUT_FORMAT_DESCR, {'i'}, "");
-    auto outFormatArg = args::ValueFlag<std::string>(fgroup, "ply|qef|vl32|vox|xyzrgb", OUTPUT_FORMAT_DESCR, {'o'}, "");
+    auto outFormatArg = args::ValueFlag<std::string>(fgroup, "ply|qef|vl32|vox|xyzrgb|xyzrgbn", OUTPUT_FORMAT_DESCR, {'o'}, "");
     auto textureArg = args::ValueFlag<std::string>(fgroup, "texture", TEXTURE_DESCR, {'t'}, "");
 
     auto vgroup = args::Group(parser, "Voxelization Options:");
